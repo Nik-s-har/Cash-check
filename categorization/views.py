@@ -1,0 +1,27 @@
+from django.shortcuts import render
+from receipt_load.models import Products, Product_category
+
+# Create your views here.
+
+
+def assing_category():
+    products_without_category = Products.objects.filter(category=None)
+    categories = Product_category.objects.all()
+    for product in products_without_category:
+        found_category = find_category(product, categories)
+        if found_category:
+            product.category = found_category
+            product.save()
+    pass
+
+def find_category(product, categories):
+    product_name = prduct.productName
+    found_category = None
+    for category in categories:
+        if find_keywords(product_name, category):
+            found_category = category
+            break
+    return found_category
+
+def find_keywords(product_name, category):
+    return resalt
