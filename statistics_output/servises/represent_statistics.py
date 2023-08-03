@@ -15,10 +15,10 @@ def statistics_as_table(statistics):
 def purchases_as_table(purchases):
     table = []
     for purchase in purchases:
-        line = [purchase.name.productName,
+        line = [purchase.name.name,
                 round(purchase.price),
                 purchase.quantity,
-                round(purchase.sum)]
+                round(purchase.total_cost)]
         table += [line]
     table = sorted(table, key=itemgetter(3), reverse=True)
     return table

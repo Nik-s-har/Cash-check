@@ -19,9 +19,8 @@ def month_statistics(request, year, month):
 
 
 def itemization(request, year, month, category):
+    print(category)
     purchases, total_cost = itemization_month_category(year, month, category)
-    print(purchases)
     purchases_table = purchases_as_table(purchases)
-    print(purchases_table)
     context = {'purchases_table': purchases_table, 'total_cost': total_cost}
     return render(request, 'statistics_output/itemization_category_table.html', context)

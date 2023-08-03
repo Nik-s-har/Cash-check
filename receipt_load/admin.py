@@ -1,14 +1,17 @@
 from django.contrib import admin
-from .models import Product_category, Products
+from .models import Сategory, Product
 
-class ProductsAdmin(admin.ModelAdmin):
-    list_display = ['productName', 'category', 'categoryVerified']
-    list_editable = ['category', 'categoryVerified']
 
-class Product_categoryAdmin(admin.ModelAdmin):
-    list_display = ['categoryName', 'keyWords']
-    list_editable = ['categoryName', 'keyWords']
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ['name', 'category', 'category_verified']
+    list_editable = ['category', 'category_verified']
+
+
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'tags']
+    list_editable = ['name', 'tags']
+
 
 # Register your models here.
-admin.site.register(Product_category)
-admin.site.register(Products, ProductsAdmin)
+admin.site.register(Сategory)
+admin.site.register(Product, ProductAdmin)
