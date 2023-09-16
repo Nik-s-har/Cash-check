@@ -1,6 +1,6 @@
 from django.db.models import QuerySet
 from receipt_load.models import Product
-from receipt_load.models import Сategory
+from receipt_load.models import Category
 
 
 
@@ -15,7 +15,7 @@ def assign_category(product: Product, all_tags: dict):
 
 
 
-def make_all_tags(categories: QuerySet[Сategory]):
+def make_all_tags(categories: QuerySet[Category]):
     all_tags = dict()
     for category in categories:
         if not category.tags:
@@ -27,13 +27,13 @@ def make_all_tags(categories: QuerySet[Сategory]):
 
 
 def main():
-    all_tags = make_all_tags(Сategory.objects.all())
+    all_tags = make_all_tags(Category.objects.all())
     for product in Product.objects.all():
         assign_category(product, all_tags)
 
 
 if __name__ == "__main__":
-    all_tags = make_all_tags(Сategory.objects.all())
+    all_tags = make_all_tags(Category.objects.all())
     for product in Product.objects.all():
         assign_category(product, all_tags)
 

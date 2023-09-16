@@ -4,11 +4,10 @@ def statistics_as_table(statistics):
     table = []
     for category in statistics:
         line = [category,
-                statistics[category].quantity,
                 round(statistics[category].cost),
                 round(statistics[category].share_in_total_cost, 1)]
         table += [line]
-    table = sorted(table, key=itemgetter(3), reverse=True)
+    table = sorted(table, key=itemgetter(2), reverse=True)
     return table
 
 

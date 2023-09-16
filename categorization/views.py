@@ -1,12 +1,12 @@
 from django.shortcuts import render
-from receipt_load.models import Product, Сategory
+from receipt_load.models import Product, Category
 
 # Create your views here.
 
 
 def assing_category():
     products_without_category = Product.objects.filter(category=None)
-    categories = Сategory.objects.all()
+    categories = Category.objects.all()
     for product in products_without_category:
         found_category = find_category(product, categories)
         if found_category:

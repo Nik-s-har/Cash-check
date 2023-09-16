@@ -14,16 +14,14 @@ table, th, td {
 <table style="width:100%">
   <tr>
     <th>Category</th>
-    <th>Quantity</th>
     <th>Cost</th>
     <th>Sare in total cost</th>
   </tr>
   {% for line in statistics_table %}
   <tr>
-    <td><a href="{{ request.path }}/{{ line.0 }}">{{ line.0 }}</a></td>
-    <td>{{ line.1 }}</td>
-    <td>{{ line.2 }} руб.</td>
-    <td>{{ line.3 }}%</td>
+    <td><a href="/{{ line.0 }}{{ date_url }}">{{ line.0 }}</a></td>
+    <td>{{ line.1 }} руб.</td>
+    <td>{{ line.2 }}%</td>
   </tr>
   {% endfor %}
 </table>

@@ -11,17 +11,32 @@ table, th, td {
 </style>
 <body>
 
+<a href="{{change_mode_url}}">change_mode</a>{{change_mode_url}}<br>
+<a href="{{back_category_url}}">back_category_url</a>{{back_category_url}}<br>
+<a href="{{back_date_url}}">back_date_url</a>{{back_date_url}}<br>
 <table style="width:100%">
+    {{category_url}}{{full_url}}5/
+    {{cell}}{{full_url}}
   <tr>
-  {% for month in months %}
-      <td><a href="{{ request.path }}/{{ month }}">{{month}}</a> </td>
-  {% endfor %}
+      {% for h in table_header %}
+            {% if not h.isdigit == False %}
+                <th><a href="{{category_url}}{{full_url}}{{h}}/">{{h}}</a></th>
+            {% else %}
+                <th>{{h}}</th>
+            {% endif %}
+      {% endfor %}
   </tr>
-  <tr>
-  {% for month_cost in statistics_table %}
-    <td>{{ month_cost }} руб.</td>
-  {% endfor %}
-  </tr>
+      {% for line in table_content %}
+            <tr>
+            {% for cell in line %}
+                {% if forloop.first %}
+                    <th><a href="/{{cell}}{{full_url}}">{{cell}}</a></th>
+                {% else %}
+                    <th>{{cell}}</th>
+                {% endif %}
+            {% endfor %}
+            </tr>
+      {% endfor %}
 </table>
 <h2>Total cost: {{ total_cost }} руб.</h2>
 </body>
