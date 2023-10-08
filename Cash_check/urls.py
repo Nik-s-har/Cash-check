@@ -18,7 +18,8 @@ from django.urls import path, include
 from receipt_load.views import ReceiptLoad
 
 urlpatterns = [
+    path('1/', ReceiptLoad.as_view()),
     path('', include('statistics_output.urls')),
     path('admin/', admin.site.urls),
-    path('1/', ReceiptLoad.as_view()),
+    # path('1/', ReceiptLoad.as_view()),
 ]

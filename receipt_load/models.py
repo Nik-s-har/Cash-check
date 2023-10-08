@@ -12,6 +12,7 @@ class Receipt(models.Model):
     fiscal_drive_number = models.IntegerField()
     fiscal_sign = models.IntegerField()
     total_cost = models.FloatField()
+    items_count = models.IntegerField(null=True)
     retail = models.ForeignKey(Retail, on_delete=models.PROTECT, null=True)
 
 

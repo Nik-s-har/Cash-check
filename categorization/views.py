@@ -15,7 +15,7 @@ def assing_category():
     pass
 
 def find_category(product, categories):
-    product_name = prduct.name
+    product_name = product.name
     found_category = None
     for category in categories:
         if find_keywords(product_name, category):
@@ -24,4 +24,4 @@ def find_category(product, categories):
     return found_category
 
 def find_keywords(product_name, category):
-    return resalt
+    pass

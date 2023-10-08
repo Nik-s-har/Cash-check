@@ -19,16 +19,16 @@ def reed_json(file):
     receipts = json.load(file)
     for receipt in receipts: # Цикл по чекам из выгруженного файла
         # Выполняем проверку на наличие чека в базе данных
-        fiscalDocumentNumber_r = receipt['ticket']['document']['receipt']['fiscalDocumentNumber']
-        if (not Receipt.objects.filter(fiscalDocumentNumber = fiscalDocumentNumber_r)):
+        fiscal_document_number_r = receipt['ticket']['document']['receipt']['fiscalDocumentNumber']
+        if (not Receipt.objects.filter(fiscal_document_number=fiscal_document_number_r)):
             entering_data_in_Database(receipt)
     return None
 
 def entering_data_in_Database(receipt):
     # Проверяем наличие магазина в БД, если отсутствует, созаем новую запись
     userInn = receipt['ticket']['document']['receipt']['userInn']
-    if Retail.objects.filter(retailInn=userInn):
-        store = Retail.objects.get(retailInn=userInn)
+    if Retail.objects.filter(inn=userInn):
+        store = Retail.objects.get(inn=userInn)
     else:
         store = retail_create(receipt)
     # Заполняем таблицу receipt_load_store_receipt, содержащую реквизиты чека
@@ -41,10 +41,9 @@ def retail_create(receipt):
     receipt_User = receipt['ticket']['document']['receipt']['user']
 #    receipt_retailPlace = receipt['ticket']['document']['receipt']['retailPlace']
     receipt_userInn = receipt['ticket']['document']['receipt']['userInn']
-    new_retail = Retail(retailInn=receipt_userInn,
-                        retailName = receipt_User)
-    new_retail.save()
-    return None
+    new_retail = Retail.objects.create(inn=receipt_userInn,
+                                       name=receipt_User)
+    return new_retail
 
 def receipt_create(receipt, retail):  #функция записывает информацию о реквизитах чека
     receipt_fiscalDocumentNumber = receipt['ticket']['document']['receipt']['fiscalDocumentNumber']
@@ -53,21 +52,21 @@ def receipt_create(receipt, retail):  #функция записывает ин�
     receipt_fiscalSign = receipt['ticket']['document']['receipt']['fiscalSign']
     receipt_totalSum = receipt['ticket']['document']['receipt']['totalSum']
     receipt_totalSum = receipt_totalSum / 100
-    new_store_receipt = Receipt.objects.create(fiscalDocumentNumber=receipt_fiscalDocumentNumber,
-                                               dateTime=receipt_dateTime,
-                                               fiscalDriveNumber=receipt_fiscalDriveNumber,
-                                               fiscalSign=receipt_fiscalSign,
-                                               totalSum=receipt_totalSum,
-                                               store=retail)
-    return None
+    new_store_receipt = Receipt.objects.create(fiscal_document_number=receipt_fiscalDocumentNumber,
+                                               date=receipt_dateTime,
+                                               fiscal_drive_number=receipt_fiscalDriveNumber,
+                                               fiscal_sign=receipt_fiscalSign,
+                                               total_cost=receipt_totalSum,
+                                               retail=retail)
+    return new_store_receipt
 
 def purchase_create(receipt, store_receipt): # Функция записывает информацию о покупках
     items = receipt['ticket']['document']['receipt']['items']
     for item in items: # Цикл по покупкам внутри чека, заполняем базу данных покупок
         goods = item['name']
         # Проверяем наличие наименования товара в справочнике товаров
-        if Product.objects.filter(productName = goods):
-            product_name = Product.objects.get(productName = goods)
+        if Product.objects.filter(name=goods):
+            product_name = Product.objects.get(name=goods)
         else:
             product_name = products_create(item)
         item_quantity = item['quantity']
@@ -78,17 +77,17 @@ def purchase_create(receipt, store_receipt): # Функция записывае
         new_purchase = Purchase.objects.create(name=product_name,
                                                quantity=item_quantity,
                                                price=item_price,
-                                               sum=item_sum,
+                                               total_cost=item_sum,
                                                receipt=store_receipt)
     return None
 
 def products_create(item):
     item_name = item['name']
-    new_product = Product.objects.create(productName=item_name)
-    return None
+    new_product = Product.objects.create(name=item_name)
+    return new_product
 
 def mark_True_categoryVerified():
-    new_products = Product.objects.filter(categoryVerified=False)
+    new_products = Product.objects.filter(category_verified=False)
     for new_products_item in new_products:
         if new_products_item.category is not None:
             new_products_item.category_verified = True
