@@ -50,14 +50,15 @@ def receipt_create(receipt, retail):  #функция записывает ин�
     receipt_dateTime = receipt['ticket']['document']['receipt']['dateTime']
     receipt_fiscalDriveNumber = receipt['ticket']['document']['receipt']['fiscalDriveNumber']
     receipt_fiscalSign = receipt['ticket']['document']['receipt']['fiscalSign']
-    receipt_totalSum = receipt['ticket']['document']['receipt']['totalSum']
-    receipt_totalSum = receipt_totalSum / 100
+    receipt_totalSum = (receipt['ticket']['document']['receipt']['totalSum'])/100
+    receipt_itemsCount = len(receipt['ticket']['document']['receipt']['items'])
     new_store_receipt = Receipt.objects.create(fiscal_document_number=receipt_fiscalDocumentNumber,
                                                date=receipt_dateTime,
                                                fiscal_drive_number=receipt_fiscalDriveNumber,
                                                fiscal_sign=receipt_fiscalSign,
                                                total_cost=receipt_totalSum,
-                                               retail=retail)
+                                               retail=retail,
+                                               items_count=receipt_itemsCount)
     return new_store_receipt
 
 def purchase_create(receipt, store_receipt): # Функция записывает информацию о покупках
@@ -74,11 +75,11 @@ def purchase_create(receipt, store_receipt): # Функция записывае
         item_price = item_price / 100
         item_sum = item['sum']
         item_sum = item_sum / 100
-        new_purchase = Purchase.objects.create(name=product_name,
-                                               quantity=item_quantity,
-                                               price=item_price,
-                                               total_cost=item_sum,
-                                               receipt=store_receipt)
+        Purchase.objects.create(name=product_name,
+                                price=item_price,
+                                quantity=item_quantity,
+                                total_cost=item_sum,
+                                receipt=store_receipt)
     return None
 
 def products_create(item):
