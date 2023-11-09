@@ -14,19 +14,26 @@ class ReceiptLoad(View):
     def post(self, request):
         reed_json(request.FILES['receipts'])
         return render(request, 'receipt_load/load_file.html')
+def get_receopt_dict(receipt):
+    try:
+        return receipt['ticket']['document']['receipt']
+    except KeyError:
+        return receipt['ticket']['document']['bso']
+
 
 def reed_json(file):
     receipts = json.load(file)
     for receipt in receipts: # Цикл по чекам из выгруженного файла
+        receipt = get_receopt_dict(receipt)
         # Выполняем проверку на наличие чека в базе данных
-        fiscal_document_number_r = receipt['ticket']['document']['receipt']['fiscalDocumentNumber']
-        if (not Receipt.objects.filter(fiscal_document_number=fiscal_document_number_r)):
+        fiscal_document_number = receipt['fiscalDocumentNumber']
+        if (not Receipt.objects.filter(fiscal_document_number=fiscal_document_number)):
             entering_data_in_Database(receipt)
     return None
-
+list
 def entering_data_in_Database(receipt):
     # Проверяем наличие магазина в БД, если отсутствует, созаем новую запись
-    userInn = receipt['ticket']['document']['receipt']['userInn']
+    userInn = receipt['userInn']
     if Retail.objects.filter(inn=userInn):
         store = Retail.objects.get(inn=userInn)
     else:
@@ -38,20 +45,19 @@ def entering_data_in_Database(receipt):
     return None
 
 def retail_create(receipt):
-    receipt_User = receipt['ticket']['document']['receipt']['user']
-#    receipt_retailPlace = receipt['ticket']['document']['receipt']['retailPlace']
-    receipt_userInn = receipt['ticket']['document']['receipt']['userInn']
+    receipt_User = receipt['user']
+    receipt_userInn = receipt['userInn']
     new_retail = Retail.objects.create(inn=receipt_userInn,
                                        name=receipt_User)
     return new_retail
 
 def receipt_create(receipt, retail):  #функция записывает информацию о реквизитах чека
-    receipt_fiscalDocumentNumber = receipt['ticket']['document']['receipt']['fiscalDocumentNumber']
-    receipt_dateTime = receipt['ticket']['document']['receipt']['dateTime']
-    receipt_fiscalDriveNumber = receipt['ticket']['document']['receipt']['fiscalDriveNumber']
-    receipt_fiscalSign = receipt['ticket']['document']['receipt']['fiscalSign']
-    receipt_totalSum = (receipt['ticket']['document']['receipt']['totalSum'])/100
-    receipt_itemsCount = len(receipt['ticket']['document']['receipt']['items'])
+    receipt_fiscalDocumentNumber = receipt['fiscalDocumentNumber']
+    receipt_dateTime = receipt['dateTime']
+    receipt_fiscalDriveNumber = receipt['fiscalDriveNumber']
+    receipt_fiscalSign = receipt['fiscalSign']
+    receipt_totalSum = receipt['totalSum'] / 100
+    receipt_itemsCount = len(receipt['items'])
     new_store_receipt = Receipt.objects.create(fiscal_document_number=receipt_fiscalDocumentNumber,
                                                date=receipt_dateTime,
                                                fiscal_drive_number=receipt_fiscalDriveNumber,
@@ -62,7 +68,7 @@ def receipt_create(receipt, retail):  #функция записывает ин�
     return new_store_receipt
 
 def purchase_create(receipt, store_receipt): # Функция записывает информацию о покупках
-    items = receipt['ticket']['document']['receipt']['items']
+    items = receipt['items']
     for item in items: # Цикл по покупкам внутри чека, заполняем базу данных покупок
         goods = item['name']
         # Проверяем наличие наименования товара в справочнике товаров
