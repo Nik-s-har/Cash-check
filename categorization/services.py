@@ -3,6 +3,11 @@ from receipt_load.models import Product
 from receipt_load.models import Category
 
 
+def main():
+    all_tags: dict = make_all_tags(Category.objects.all())
+    for product in Product.objects.all():
+        assign_category(product, all_tags)
+
 
 def assign_category(product: Product, all_tags: dict):
     if product.category:
@@ -14,8 +19,7 @@ def assign_category(product: Product, all_tags: dict):
             break
 
 
-
-def make_all_tags(categories: QuerySet[Category]):
+def make_all_tags(categories: QuerySet[Category]) -> dict:
     all_tags = dict()
     for category in categories:
         if not category.tags:
@@ -24,17 +28,3 @@ def make_all_tags(categories: QuerySet[Category]):
         for tag in category_tags:
             all_tags[tag] = category
     return all_tags
-
-
-def main():
-    all_tags = make_all_tags(Category.objects.all())
-    for product in Product.objects.all():
-        assign_category(product, all_tags)
-
-
-if __name__ == "__main__":
-    all_tags = make_all_tags(Category.objects.all())
-    for product in Product.objects.all():
-        assign_category(product, all_tags)
-
-
