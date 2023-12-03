@@ -11,6 +11,7 @@ def vector_statistics(request, year, month=None, parent_category="main", mode='s
     year = int(year)
     month = int(month) if month else month
 
+    parent_category.replace('%20', ' ')
     if mode == "simple":
         statistics_table, total_cost = get_statistics(year, month, parent_category)
     elif mode == "vector":

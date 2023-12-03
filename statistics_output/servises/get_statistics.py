@@ -7,8 +7,7 @@ from receipt_load.models import Product
 from receipt_load.models import Receipt
 
 CategoryStatistics = recordtype(
-    'CategoryStatistics', ['cost',
-                           'share_in_total_cost']
+    'CategoryStatistics', ['cost', 'share_in_total_cost']
 )
 
 
@@ -39,9 +38,9 @@ class HierarchyTree:
 
         products_by_category = []
 
-        for sub_category in atom_sub_categories:
-            products_by_sub_category = list(Product.objects.filter(category=sub_category))
-            products_by_category += products_by_sub_category
+        for atom_sub_category in atom_sub_categories:
+            products_by_atom_sub_category = list(Product.objects.filter(category=atom_sub_category))
+            products_by_category += products_by_atom_sub_category
 
         return products_by_category
 
@@ -81,20 +80,20 @@ def get_vector_statistics(year: int, month: int | None, parent_category: str):
     parent_category = Category.objects.get(name=parent_category)
     categories = Category.objects.all()
     hierarchy = HierarchyTree(categories)
-    sub_categories = hierarchy.tree[parent_category]
+    sub_objects = hierarchy.tree[parent_category] or hierarchy.products_by_category(parent_category)
 
     total_cost = 0
-    for sub_category in sub_categories:
-        line_in_table = [sub_category.name]
-        total_cost_category = 0
+    for sub_object in sub_objects:
+        line_in_table = [sub_object.name]
+        total_cost_object = 0
         for period_time in period:
             period_date = get_period_date([year, month], period_time)
             purchases = filter_by_date(Purchase.objects.all(), period_date)
-            time_cost = get_cost_by_category(purchases, sub_category, hierarchy)
+            time_cost = get_cost_by_object(purchases, sub_object, hierarchy)
             line_in_table.append(time_cost)
-            total_cost_category += time_cost
-        total_cost += total_cost_category
-        line_in_table.append(total_cost_category)
+            total_cost_object += time_cost
+        total_cost += total_cost_object
+        line_in_table.append(total_cost_object)
         table.append(line_in_table)
 
     add_share_in_total_cost(table, total_cost)
@@ -112,13 +111,13 @@ def get_statistics(year: int, month: int | None, parent_category: str, day=None)
     parent_category = Category.objects.get(name=parent_category)
     categories = Category.objects.all()
     hierarchy = HierarchyTree(categories)
-    sub_categories = hierarchy.tree[parent_category]
+    sub_objects = hierarchy.tree[parent_category] or hierarchy.products_by_category(parent_category)
 
     total_cost = 0
-    for sub_category in sub_categories:
-        category_cost = get_cost_by_category(purchases, sub_category, hierarchy)
-        total_cost += category_cost
-        line_in_table = [sub_category.name, category_cost]
+    for sub_object in sub_objects:
+        object_cost = get_cost_by_object(purchases, sub_object, hierarchy)
+        total_cost += object_cost
+        line_in_table = [sub_object.name, object_cost]
         table.append(line_in_table)
 
     add_share_in_total_cost(table, total_cost)
@@ -129,13 +128,13 @@ def get_statistics(year: int, month: int | None, parent_category: str, day=None)
 def itemization_month_category(year, month, category):
     purchases = filter_by_date(Purchase.objects.all(), year, month)
     category = Category.objects.get(name=category)
-    purchases = filter_by_category(purchases, category)
+    purchases = filter_by_object(purchases, category)
     total_cost = get_total_cost(purchases)
     return purchases, round(total_cost)
 
 
-def get_cost_by_category(purchases, category, hierarchy):
-    purchases = filter_by_category(purchases, category, hierarchy)
+def get_cost_by_object(purchases, object, hierarchy):
+    purchases = filter_by_object(purchases, object, hierarchy)
     cost = get_total_cost(purchases)
     return cost
 
@@ -153,9 +152,13 @@ def get_total_cost(purchases):
     return total_cost
 
 
-def filter_by_category(purchases, category, hierarchy):
-    product_by_category = hierarchy.products_by_category(category.name)
-    purchases_by_category = purchases.filter(name__in=product_by_category)
+def filter_by_object(purchases, object, hierarchy):
+    if type(object) == Category:
+        our_products = hierarchy.products_by_category(object.name)
+    else:
+        our_products = [object]
+
+    purchases_by_category = purchases.filter(name__in=our_products)
     return purchases_by_category
 
 
