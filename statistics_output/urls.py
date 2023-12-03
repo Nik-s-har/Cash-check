@@ -18,5 +18,5 @@ mode_and_date_urls = [
 
 urlpatterns = [
     path('', include(mode_and_date_urls)),
-    re_path(r'(?P<parent_category>[а-яА-Я]*)/', include(mode_and_date_urls)),
+    re_path(r'(?P<parent_category>[а-яА-Я\s,]*)/', include(mode_and_date_urls)),
 ]
